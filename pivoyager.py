@@ -75,13 +75,17 @@ class PiVoyager(plugins.Plugin):
 
 
     def on_ui_setup(self, ui):
-        ui.add_element('pivoyager', LabeledValue(color=BLACK, label='UPS', value='', position=(ui.width() / 2 + 4, 0),
+        ui.add_element('pivoyager', LabeledValue(color=BLACK, label='UPS', value='', position=(ui.width() / 2, 0),
                                            label_font=fonts.Bold, text_font=fonts.Medium))
 
 
     def on_ui_update(self, ui):
         status = self.get_status()
-        ui.set('pivoyager', "{}".format(status["vbat"]))
+        charge_mapping = {
+                "charging":    "\u25AA",
+                "discharging": "\u25AB"
+                }
+        ui.set('pivoyager', "{sbat}{voltage}".format(sbat=charge_mapping[status["bat"]], voltage=status["vbat"]))
 
 
     def on_internet_available(self, agent):
