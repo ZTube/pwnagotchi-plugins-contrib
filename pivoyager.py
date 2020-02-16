@@ -5,7 +5,7 @@
 # Tutorial for installing the binary
 # https://www.omzlo.com/articles/pivoyager-installation-and-tutorial
 from threading import Thread
-from subprocess import run, PIPE
+from subprocess import run, PIPE, DEVNULL
 from time import sleep
 
 from pwnagotchi.ui.components import LabeledValue
@@ -64,9 +64,8 @@ class PiVoyager(plugins.Plugin):
         # TODO: find reason for uptime mismatch in manual mode
         status = self.get_status()
         if("inits" in status["stat"]):
-            run(["/usr/bin/timedatectl", "set-ntp", "no"])
-            run(self.path + " date | sed 's/T/ /g;s/Z//g' | xargs -I % timedatectl set-time '%'", shell=True)
-            run(["/usr/bin/timedatectl", "set-ntp", "yes"])
+            date = run([self.path, "date"], stdout=PIPE).stdout.decode()
+            run(["date", "-s", date], stdout=DEVNULL)
             logging.info("updated local time")
         else:
             logging.warning("could not sync local time due to uninitialised RTC")
